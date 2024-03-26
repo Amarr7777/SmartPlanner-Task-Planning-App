@@ -112,7 +112,7 @@ const HomeScreen = ({ navigation, route }) => {
 
   const getData = async () => {
     const token = await AsyncStorage.getItem("token");
-    await axios.post("http://192.168.114.96:5001/user/getUser", { token }).then(res => {
+    await axios.post("http://10.4.202.224:5001/user/getUser", { token }).then(res => {
       console.log("GET DATA", res.data.data.tasks)
       dispatch(setToken({ data: res.data.data }));
       setName(res.data.data.name)
@@ -136,6 +136,10 @@ const HomeScreen = ({ navigation, route }) => {
     const month = monthNames[date.getMonth()];
     const year = date.getFullYear();
     return `${day} ${month} ${year}`;
+  };
+
+  const handlePandoraPress = () => {
+    navigation.navigate('Pandora'); 
   };
 
   return (
@@ -167,7 +171,7 @@ const HomeScreen = ({ navigation, route }) => {
           <TouchableOpacity style={{ backgroundColor: '#9F7AF9', width: 150, height: 170, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginHorizontal: 5 }}>
             <Text style={{ color: 'white', fontSize: 18 }}>Review Analytics</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{ backgroundColor: '#FB83F7', width: 150, height: 170, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginHorizontal: 5 }}>
+          <TouchableOpacity style={{ backgroundColor: '#FB83F7', width: 150, height: 170, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginHorizontal: 5 }} onPress={handlePandoraPress}>
             <Text style={{ color: 'white', fontSize: 18 }}>Pandora</Text>
           </TouchableOpacity>
         </ScrollView>

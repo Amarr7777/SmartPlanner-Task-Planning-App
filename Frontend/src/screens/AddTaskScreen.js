@@ -333,10 +333,10 @@ const AddTaskScreen = ({ navigation, route }) => {
       endDate: endDate,
       startTime: startTime,
       endTime: endTime,
-      token: token, // Add comma here
+      token: token, 
     };
   
-    axios.post('http://192.168.114.96:5001/task/createTask', data)
+    axios.post('http://10.4.202.224:5001/task/createTask', data)
       .then((res) => {
         console.log("TASK CREATED");
         navigation.navigate('Home');
