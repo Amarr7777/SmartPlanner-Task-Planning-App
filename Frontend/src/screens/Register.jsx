@@ -43,7 +43,7 @@ function Register() {
     };
     if (nameVerify && emailVerify && passwordVerify) {
       axios
-        .post("http://10.4.202.224:8081/auth/register", userData)
+        .post("http://192.168.114.96:5001/auth/register", userData)
         .then((res) => {
           console.log(res.data);
           if (res.data.status === "ok") {
@@ -98,15 +98,15 @@ function Register() {
     }
   }
 
-  function handleMobile(e) {
-    const mobileVar = e.nativeEvent.text;
-    setMobile(mobileVar);
-    setMobileVerify(false);
-    if (/[6-9]{1}[0-9]{9}/.test(mobileVar)) {
-      setMobile(mobileVar);
-      setMobileVerify(true);
-    }
-  }
+  // function handleMobile(e) {
+  //   const mobileVar = e.nativeEvent.text;
+  //   setMobile(mobileVar);
+  //   setMobileVerify(false);
+  //   if (/[6-9]{1}[0-9]{9}/.test(mobileVar)) {
+  //     setMobile(mobileVar);
+  //     setMobileVerify(true);
+  //   }
+  // }
 
   function handlePassword(e) {
     const passwordVar = e.nativeEvent.text;

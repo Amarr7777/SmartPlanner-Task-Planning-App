@@ -30,7 +30,7 @@ function Login() {
       password,
     };
     axios
-      .post("http://10.4.202.224:5001/auth/login-user", userData)
+      .post("http://192.168.114.96:5001/auth/login-user", userData)
       .then((res) => {
         console.log(res.data);
         if (res.data.status === "ok") {

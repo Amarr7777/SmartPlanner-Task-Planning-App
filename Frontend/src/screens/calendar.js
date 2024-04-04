@@ -12,7 +12,7 @@ const CalendarScreen = () => {
   const getData = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
-      const response = await axios.post("http://10.4.202.224:5001/user/getUser", { token });
+      const response = await axios.post("http://192.168.114.96:5001/user/getUser", { token });
       const tasks = response.data.data.tasks;
       console.log("TASK", tasks);
 

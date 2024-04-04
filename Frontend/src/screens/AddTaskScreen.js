@@ -336,7 +336,7 @@ const AddTaskScreen = ({ navigation, route }) => {
       token: token, 
     };
   
-    axios.post('http://10.4.202.224:5001/task/createTask', data)
+    axios.post('http://192.168.114.96:5001/task/createTask', data)
       .then((res) => {
         console.log("TASK CREATED");
         navigation.navigate('Home');
