@@ -30,7 +30,7 @@ function Login() {
       password,
     };
     axios
-      .post("http://192.168.114.96:5001/auth/login-user", userData)
+      .post("http://192.168.1.11:5001/auth/login-user", userData)
       .then((res) => {
         console.log(res.data);
         if (res.data.status === "ok") {
@@ -153,7 +153,7 @@ function Login() {
               <TextInput
                 onChangeText={(e) => setEmail(e)}
                 className="border font-semibold text-white border-white focus:border-[#DDFF94] focus:outline-none focus:ring-2 focus:ring-[#DDFF94] w-full rounded-md px-5 py-3"
-             />
+              />
             </View>
             <View className="flex flex-col gap-2 items-start w-full pr-10">
               <Text className=" text-white">Password</Text>
