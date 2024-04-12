@@ -124,7 +124,7 @@ const HomeScreen = ({ navigation, route }) => {
   const getData = async () => {
     const token = await AsyncStorage.getItem("token");
     await axios
-      .post("http://192.168.1.11:5001/user/getUser", { token })
+      .post("http://10.4.205.62:5001/user/getUser", { token })
       .then((res) => {
         console.log("GET DATA", res.data.data.tasks);
         dispatch(setToken({ data: res.data.data }));
