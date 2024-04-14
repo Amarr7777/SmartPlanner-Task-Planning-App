@@ -20,7 +20,7 @@ const ProfileScreen = () => {
       };
 
       await axios
-        .post("http://10.4.205.62:5001/task/getAllTasks", data)
+        .post("http://192.168.1.5:5001/task/getAllTasks", data)
         .then((response) => {
           const tasks = response.data.data;
           setCategories(tasks);

@@ -34,76 +34,29 @@ const HomeScreen = ({ navigation, route }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (route.params && route.params.newTask) {
-      // Convert startTime to a serializable format (string representation of the date)
-      const newTask = {
-        ...route.params.newTask,
-        startTime: route.params.newTask.startTime.getTime(), // Convert Date to milliseconds since Unix epoch
-      };
-
-      // setTasks(prevTasks => [newTask, ...prevTasks]);
-      setRecentTask(newTask);
-
-      // Update total tasks count
-      setTaskCategories((categories) => {
-        const newCategories = [...categories];
-        newCategories[0].count++;
-        return newCategories;
-      });
-
-      // Update category-specific tasks count
-      const categoryIndex = taskCategories.findIndex(
-        (category) => category.name === newTask.category
-      );
-      if (categoryIndex !== -1) {
-        setTaskCategories((categories) => {
-          const newCategories = [...categories];
-          newCategories[categoryIndex].count++;
-          return newCategories;
-        });
-      }
-    }
-  }, [route.params]);
-
-  const toggleTaskCompletion = (index) => {
+  // Function to toggle task completion
+  const toggleTaskCompletion = async (index) => {
     const updatedTasks = [...tasks];
-    const taskToMove = { ...updatedTasks[index] }; // Create a copy of the task
+    updatedTasks[index].completed = !updatedTasks[index].completed;
 
-    // Toggle the completion status of the task
-    taskToMove.completed = !taskToMove.completed;
+    // Store updated tasks in AsyncStorage
+    await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
 
-    // Update the task in the array
-    updatedTasks[index] = taskToMove;
-
-    // Recalculate the completion percentage
+    // Recalculate completion percentage
     const completedTaskCount = updatedTasks.filter(
       (task) => task.completed
     ).length;
-    const totalTaskCount = updatedTasks.length;
     const newCompletionPercentage =
-      totalTaskCount === 0 ? 0 : (completedTaskCount / totalTaskCount) * 100;
+      updatedTasks.length === 0
+        ? 0
+        : (completedTaskCount / updatedTasks.length) * 100;
 
-    // Update the state with the new task list and completion percentage
+    // Update state
     setTasks(updatedTasks);
     setCompletionPercentage(newCompletionPercentage);
   };
 
-  const handleTaskPress = (task) => {
-    setSelectedTask(task);
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setSelectedTask(null);
-    setModalVisible(false);
-  };
-
-  const deleteTask = () => {
-    const updatedTasks = tasks.filter((task) => task !== selectedTask);
-    setTasks(updatedTasks);
-    closeModal();
-  };
+  // Inside the HomeScreen component
 
   const applyFilter = () => {
     setFilterDone(!filterDone);
@@ -121,18 +74,25 @@ const HomeScreen = ({ navigation, route }) => {
     });
   };
 
+  // Function to retrieve tasks from AsyncStorage
   const getData = async () => {
-    const token = await AsyncStorage.getItem("token");
-    await axios
-      .post("http://10.4.205.62:5001/user/getUser", { token })
-      .then((res) => {
-        console.log("GET DATA", res.data.data.tasks);
-        dispatch(setToken({ data: res.data.data }));
-        setName(res.data.data.name);
-        setTasks(res.data.data.tasks);
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const storedTasks = await AsyncStorage.getItem("tasks");
+      if (storedTasks !== null) {
+        setTasks(JSON.parse(storedTasks));
+      }
+      const res = await axios.post("http://192.168.1.5:5001/user/getUser", {
+        token,
       });
+      dispatch(setToken({ data: res.data.data }));
+      setName(res.data.data.name);
+    } catch (error) {
+      console.error("Error retrieving data from AsyncStorage:", error);
+    }
   };
 
+  // Effect to run when component mounts and on focus
   useEffect(() => {
     getData();
   }, []);
@@ -142,6 +102,7 @@ const HomeScreen = ({ navigation, route }) => {
       getData();
     }, [])
   );
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate();
@@ -165,7 +126,7 @@ const HomeScreen = ({ navigation, route }) => {
   };
 
   const handlePandoraPress = () => {
-    navigation.navigate("Pandora");
+    navigation.navigate("Pomodoro");
   };
 
   return (
@@ -363,12 +324,7 @@ const HomeScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         ))}
       </ScrollView>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={closeModal}
-      >
+      <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             {taskCategories.map((category, index) => (
