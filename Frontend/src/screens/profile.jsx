@@ -2,14 +2,12 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import axios from "axios"; // Import axios for making HTTP requests
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BarChart } from "react-native-chart-kit";
 
 const ProfileScreen = () => {
   const [user, setUser] = useState(null); // State to store user data
   const [categories, setCategories] = useState([]); // State to store task categories data
-  const [acdDuration, setAcdDuration] = useState(0); // State to store Academics/Profession category duration
-  const [personalDuration, setPersonalDuration] = useState(0); // State to store Personal category duration
-  const [socialDuration, setSocialDuration] = useState(0); // State to store Social category duration
-  const [generalDuration, setGeneralDuration] = useState(0); // State to store General category duration
+  const [categoryCounts, setCategoryCounts] = useState({}); // State to store category counts
 
   useEffect(() => {
     // Function to fetch task categories data
@@ -20,45 +18,20 @@ const ProfileScreen = () => {
       };
 
       await axios
-        .post("http://192.168.1.5:5001/task/getAllTasks", data)
+        // .post("http://192.168.1.5:5001/task/getAllTasks", data)
+        .post("http://10.0.2.2:5001/task/getAllTasks", data)
         .then((response) => {
           const tasks = response.data.data;
           setCategories(tasks);
 
-          // Calculate duration for each category
-          let acdDur = 0;
-          let perDur = 0;
-          let socDur = 0;
-          let genDur = 0;
-
+          // Calculate count for each category
+          const counts = {};
           tasks.forEach((task) => {
-            const startTime = new Date(task.startTime).getTime();
-            const endTime = new Date(task.endTime).getTime();
-            const duration = endTime - startTime;
-
-            switch (task.categoryName) {
-              case "Academics/Profession":
-                acdDur += duration;
-                break;
-              case "Personal":
-                perDur += duration;
-                break;
-              case "Social":
-                socDur += duration;
-                break;
-              case "General":
-                genDur += duration;
-                break;
-              default:
-                break;
-            }
+            counts[task.categoryName] = (counts[task.categoryName] || 0) + 1;
           });
 
-          // Update state with duration for each category
-          setAcdDuration(acdDur);
-          setPersonalDuration(perDur);
-          setSocialDuration(socDur);
-          setGeneralDuration(genDur);
+          // Update state with category counts
+          setCategoryCounts(counts);
         })
         .catch((error) => {
           console.error("Error fetching task categories:", error);
@@ -68,17 +41,6 @@ const ProfileScreen = () => {
     // Call the fetch function when the component mounts
     fetchCategories();
   }, [categories]);
-
-  // Function to convert milliseconds to time format (HH:MM:SS)
-  const millisecondsToTime = (milliseconds) => {
-    const totalSeconds = milliseconds / 1000;
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = Math.floor(totalSeconds % 60);
-    return `${hours.toString().padStart(2, "0")}:${minutes
-      .toString()
-      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-  };
 
   return (
     <View style={styles.container}>
@@ -93,22 +55,35 @@ const ProfileScreen = () => {
       {/* Render task categories if data is available */}
       {categories.length > 0 && (
         <View style={styles.categoriesContainer}>
-          <Text style={styles.heading}>Task Categories:</Text>
-          <Text style={styles.category}>
-            Academics/Profession - Total Duration:{" "}
-            {millisecondsToTime(acdDuration)} hours
-          </Text>
-          <Text style={styles.category}>
-            Personal - Total Duration: {millisecondsToTime(personalDuration)}{" "}
-            hours
-          </Text>
-          <Text style={styles.category}>
-            Social - Total Duration: {millisecondsToTime(socialDuration)} hours
-          </Text>
-          <Text style={styles.category}>
-            General - Total Duration: {millisecondsToTime(generalDuration)}{" "}
-            hours
-          </Text>
+          <Text style={styles.heading}>Task Categories Count:</Text>
+          <BarChart
+            data={{
+              labels: Object.keys(categoryCounts),
+              datasets: [
+                {
+                  data: Object.values(categoryCounts),
+                },
+              ],
+            }}
+            width={300}
+            height={200}
+            yAxisLabel="Count"
+            chartConfig={{
+              backgroundGradientFrom: "#1E2923",
+              backgroundGradientTo: "#08130D",
+              decimalPlaces: 0, // optional, defaults to 2dp
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              style: {
+                borderRadius: 16,
+              },
+              propsForDots: {
+                r: "6",
+                strokeWidth: "2",
+                stroke: "#ffa726",
+              },
+            }}
+          />
         </View>
       )}
     </View>
@@ -139,11 +114,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "white",
-  },
-  category: {
-    fontSize: 16,
-    marginBottom: 5,
     color: "white",
   },
 });

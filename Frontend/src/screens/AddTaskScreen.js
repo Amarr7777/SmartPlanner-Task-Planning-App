@@ -122,7 +122,8 @@ const AddTaskScreen = ({ navigation, route }) => {
     };
 
     axios
-      .post("http://192.168.1.5:5001/task/createTask", data)
+      // .post("http://192.168.1.5:5001/task/createTask", data)
+      .post("http://10.0.2.2:5001/task/createTask", data)
       .then((res) => {
         console.log("TASK CREATED");
         navigation.navigate("Home");
@@ -305,193 +306,196 @@ const AddTaskScreen = ({ navigation, route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleCancel}>
-          <Text style={styles.cancel}>Cancel</Text>
-        </TouchableOpacity>
-        <Text style={styles.heading}>Add Task</Text>
-      </View>
+    <ScrollView>
 
-      {/* Category selection */}
-      <Text style={styles.subHeading}>Category</Text>
-      <View style={styles.filterContainer}>
-        {["Academics/Profession", "Personal", "Social", "General"].map(
-          (category, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.filter,
-                selectedCategory === category && styles.selectedFilter,
-                index === tasks.length - 1 && { marginBottom: 20 },
-              ]}
-              onPress={() => handleCategorySelect(category)}
-            >
-              <Text
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={handleCancel}>
+            <Text style={styles.cancel}>Cancel</Text>
+          </TouchableOpacity>
+          <Text style={styles.heading}>Add Task</Text>
+        </View>
+
+        {/* Category selection */}
+        <Text style={styles.subHeading}>Category</Text>
+        <View style={styles.filterContainer}>
+          {["Academics/Profession", "Personal", "Social", "General"].map(
+            (category, index) => (
+              <TouchableOpacity
+                key={index}
                 style={[
-                  styles.filterText,
-                  selectedCategory === category && styles.selectedFilterText,
+                  styles.filter,
+                  selectedCategory === category && styles.selectedFilter,
+                  index === tasks.length - 1 && { marginBottom: 20 },
                 ]}
+                onPress={() => handleCategorySelect(category)}
               >
-                {category}
-              </Text>
-            </TouchableOpacity>
-          )
-        )}
-      </View>
+                <Text
+                  style={[
+                    styles.filterText,
+                    selectedCategory === category && styles.selectedFilterText,
+                  ]}
+                >
+                  {category}
+                </Text>
+              </TouchableOpacity>
+            )
+          )}
+        </View>
 
-      {/* Task selection */}
-      <Text style={styles.taskHeading}>Task</Text>
-      <TouchableOpacity style={styles.pickerContainer} onPress={togglePicker}>
-        <Picker
-          selectedValue={selectedTask}
-          onValueChange={(itemValue) => setSelectedTask(itemValue)}
-          style={styles.picker}
-          enabled={selectedTask !== ""} // Disable picker when selectedTask is empty
-        >
-          {tasks.map((task, index) => (
-            <Picker.Item key={index} label={task} value={task} />
-          ))}
-        </Picker>
-        <Icon
-          name="angle-down"
-          size={20}
-          color="white"
-          style={styles.dropdownIcon}
-        />
-      </TouchableOpacity>
-
-      {/* Custom task input */}
-      {selectedTask === "Custom" && (
-        <View style={styles.customInputContainer}>
-          <TextInput
-            style={styles.customInput}
-            placeholder="Enter custom task name"
-            value={customTaskName}
-            onChangeText={(text) => setCustomTaskName(text)}
-          />
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={handleCustomTaskInput}
+        {/* Task selection */}
+        <Text style={styles.taskHeading}>Task</Text>
+        <TouchableOpacity style={styles.pickerContainer} onPress={togglePicker}>
+          <Picker
+            selectedValue={selectedTask}
+            onValueChange={(itemValue) => setSelectedTask(itemValue)}
+            style={styles.picker}
+            enabled={selectedTask !== ""} // Disable picker when selectedTask is empty
           >
-            <Text style={styles.addButtonText}>Add</Text>
+            {tasks.map((task, index) => (
+              <Picker.Item key={index} label={task} value={task} />
+            ))}
+          </Picker>
+          <Icon
+            name="angle-down"
+            size={20}
+            color="white"
+            style={styles.dropdownIcon}
+          />
+        </TouchableOpacity>
+
+        {/* Custom task input */}
+        {selectedTask === "Custom" && (
+          <View style={styles.customInputContainer}>
+            <TextInput
+              style={styles.customInput}
+              placeholder="Enter custom task name"
+              value={customTaskName}
+              onChangeText={(text) => setCustomTaskName(text)}
+            />
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={handleCustomTaskInput}
+            >
+              <Text style={styles.addButtonText}>Add</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Description input */}
+        <Text style={styles.descriptionHeading}>Description</Text>
+        <View style={styles.descriptionContainer}>
+          <TextInput
+            style={styles.descriptionInput}
+            placeholder="Enter task description"
+            multiline={true}
+            numberOfLines={4}
+            onChangeText={(text) => setDescription(text)}
+            value={description}
+          />
+        </View>
+
+        {/* Date picker */}
+        <View style={styles.subHeadingContainer}>
+          <Text style={styles.dueDateHeading}>Select Date</Text>
+        </View>
+        <View style={styles.dateContainer}>
+          <TouchableOpacity
+            onPress={() => setShowStartDatePicker(true)}
+            style={styles.startDateContainer}
+          >
+            <Text style={styles.cardText}>
+              {startDate ? formatDate(startDate) : "Select Start Date"}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setShowEndDatePicker(true)}
+            style={styles.endDateContainer}
+          >
+            <Text style={styles.cardText}>
+              {endDate ? formatDate(endDate) : "Select End Date"}
+            </Text>
           </TouchableOpacity>
         </View>
-      )}
+        {showStartDatePicker && (
+          <DatePicker
+            value={startDate}
+            mode="date"
+            display="default"
+            minimumDate={new Date()} // Prevent selection of past dates
+            onChange={handleStartDateChange}
+          />
+        )}
+        {showEndDatePicker && (
+          <DatePicker
+            value={endDate}
+            mode="date"
+            display="default"
+            minimumDate={startDate} // Set minimum date to start date
+            onChange={handleEndDateChange}
+          />
+        )}
 
-      {/* Description input */}
-      <Text style={styles.descriptionHeading}>Description</Text>
-      <View style={styles.descriptionContainer}>
-        <TextInput
-          style={styles.descriptionInput}
-          placeholder="Enter task description"
-          multiline={true}
-          numberOfLines={4}
-          onChangeText={(text) => setDescription(text)}
-          value={description}
-        />
-      </View>
+        {/* Sub-heading for Select Time */}
+        <View style={styles.subHeadingContainer}>
+          <Text style={styles.dueDateHeading}>Select Time</Text>
+        </View>
 
-      {/* Date picker */}
-      <View style={styles.subHeadingContainer}>
-        <Text style={styles.dueDateHeading}>Select Date</Text>
-      </View>
-      <View style={styles.dateContainer}>
-        <TouchableOpacity
-          onPress={() => setShowStartDatePicker(true)}
-          style={styles.startDateContainer}
-        >
-          <Text style={styles.cardText}>
-            {startDate ? formatDate(startDate) : "Select Start Date"}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setShowEndDatePicker(true)}
-          style={styles.endDateContainer}
-        >
-          <Text style={styles.cardText}>
-            {endDate ? formatDate(endDate) : "Select End Date"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      {showStartDatePicker && (
-        <DatePicker
-          value={startDate}
-          mode="date"
-          display="default"
-          minimumDate={new Date()} // Prevent selection of past dates
-          onChange={handleStartDateChange}
-        />
-      )}
-      {showEndDatePicker && (
-        <DatePicker
-          value={endDate}
-          mode="date"
-          display="default"
-          minimumDate={startDate} // Set minimum date to start date
-          onChange={handleEndDateChange}
-        />
-      )}
-
-      {/* Sub-heading for Select Time */}
-      <View style={styles.subHeadingContainer}>
-        <Text style={styles.dueDateHeading}>Select Time</Text>
-      </View>
-
-      {/* Time pickers */}
-      <View style={styles.dateContainer}>
-        <TouchableOpacity
-          onPress={() => setShowStartTimePicker(true)}
-          style={styles.startDateContainer}
-        >
-          <Text style={styles.cardText}>
-            {startTime
-              ? startTime.toLocaleTimeString([], {
+        {/* Time pickers */}
+        <View style={styles.dateContainer}>
+          <TouchableOpacity
+            onPress={() => setShowStartTimePicker(true)}
+            style={styles.startDateContainer}
+          >
+            <Text style={styles.cardText}>
+              {startTime
+                ? startTime.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                 })
-              : "Select Start Time"}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setShowEndTimePicker(true)}
-          style={styles.endDateContainer}
-        >
-          <Text style={styles.cardText}>
-            {endTime
-              ? endTime.toLocaleTimeString([], {
+                : "Select Start Time"}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setShowEndTimePicker(true)}
+            style={styles.endDateContainer}
+          >
+            <Text style={styles.cardText}>
+              {endTime
+                ? endTime.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                 })
-              : "Select End Time"}
-          </Text>
+                : "Select End Time"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {showStartTimePicker && (
+          <DatePicker
+            value={startTime}
+            mode="time"
+            display="default"
+            onChange={handleStartTimeChange}
+          />
+        )}
+        {showEndTimePicker && (
+          <DatePicker
+            value={endTime}
+            mode="time"
+            display="default"
+            onChange={handleEndTimeChange}
+          />
+        )}
+        {/* Button to create task */}
+        <TouchableOpacity
+          style={styles.createTaskButton}
+          onPress={handleCreateTask}
+        >
+          <Text style={styles.createTaskButtonText}>Create Task</Text>
         </TouchableOpacity>
       </View>
-      {showStartTimePicker && (
-        <DatePicker
-          value={startTime}
-          mode="time"
-          display="default"
-          onChange={handleStartTimeChange}
-        />
-      )}
-      {showEndTimePicker && (
-        <DatePicker
-          value={endTime}
-          mode="time"
-          display="default"
-          onChange={handleEndTimeChange}
-        />
-      )}
-      {/* Button to create task */}
-      <TouchableOpacity
-        style={styles.createTaskButton}
-        onPress={handleCreateTask}
-      >
-        <Text style={styles.createTaskButtonText}>Create Task</Text>
-      </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 

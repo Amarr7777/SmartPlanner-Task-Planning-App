@@ -82,7 +82,10 @@ const HomeScreen = ({ navigation, route }) => {
       if (storedTasks !== null) {
         setTasks(JSON.parse(storedTasks));
       }
-      const res = await axios.post("http://192.168.1.5:5001/user/getUser", {
+      const res = await axios
+      // .post("http://192.168.1.5:5001/user/getUser", 
+      .post("http://10.0.2.2:5001/user/getUser", 
+      {
         token,
       });
       dispatch(setToken({ data: res.data.data }));
